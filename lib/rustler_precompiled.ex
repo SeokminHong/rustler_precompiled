@@ -187,8 +187,13 @@ defmodule RustlerPrecompiled do
         version: version,
         format: fmt
       } ->
-        for target_triple <- targets, nif_version <- @available_nif_versions do
-          target = "nif-#{nif_version}-#{target_triple}"
+        for target_triple <- targets, nif_version <- [nil | @available_nif_versions] do
+          target =
+            if nif_version do
+              "nif-#{nif_version}-#{target_triple}"
+            else
+              target_triple
+            end
 
           # We need to build again the name because each arch is different.
           lib_name = format(fmt, target, basename, version)
