@@ -45,6 +45,13 @@ defmodule RustlerPrecompiled do
       precompiled assets are available. By default the following targets are
       configured:
 
+    * `:format` - The format of precompiled file name. Default is
+      "{name}-v{version}-{target}". You can use the following
+      placeholders:
+        * `{name}` - The name of the file.
+        * `{version}` - The version of the file name.
+        * `{target}` - The target architecture.
+
     #{Enum.map_join(RustlerPrecompiled.Config.default_targets(), "\n", &"    - `#{&1}`")}
 
   In case "force build" is used, all options except `:base_url`, `:version`,
@@ -590,9 +597,8 @@ defmodule RustlerPrecompiled do
   end
 
   defp format(fmt, target, basename, version) do
-    (fmt || "{prefix}{basename}-v{version}-{target}")
-    |> String.replace("{prefix}", lib_prefix(target))
-    |> String.replace("{basename}", basename)
+    (fmt || "{name}-v{version}-{target}")
+    |> String.replace("{name}", lib_prefix(target) <> basename)
     |> String.replace("{version}", version)
     |> String.replace("{target}", target)
   end
