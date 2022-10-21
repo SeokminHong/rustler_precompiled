@@ -247,7 +247,11 @@ defmodule RustlerPrecompiled do
       {:ok, "nif-2.15-aarch64-apple-darwin"}
 
   """
-  def target(config \\ target_config(), available_targets \\ Config.default_targets()) do
+  def target(
+        config \\ target_config(),
+        available_targets \\ Config.default_targets(),
+        nif_prefix \\ true
+      ) do
     arch_os =
       case config.os_type do
         {:unix, _} ->
@@ -293,7 +297,12 @@ defmodule RustlerPrecompiled do
            "The available NIF versions are:\n - #{Enum.join(@available_nif_versions, "\n - ")}"}
 
       true ->
-        {:ok, "nif-#{config.nif_version}-#{arch_os}"}
+        {:ok,
+         if nif_prefix == false do
+           arch_os
+         else
+           "nif-#{config.nif_version}-#{arch_os}"
+         end}
     end
   end
 
@@ -431,7 +440,7 @@ defmodule RustlerPrecompiled do
   # from `config`.
   @doc false
   def build_metadata(%Config{} = config) do
-    with {:ok, target} <- target(target_config(), config.targets) do
+    with {:ok, target} <- target(target_config(), config.targets, config.nif_prefix) do
       basename = config.crate || config.otp_app
       lib_name = format(config.format, target, basename, config.version)
 

@@ -14,7 +14,8 @@ defmodule RustlerPrecompiled.Config do
     :load_data,
     :force_build?,
     :targets,
-    :format
+    :format,
+    :nif_prefix
   ]
 
   @default_targets ~w(
@@ -47,7 +48,8 @@ defmodule RustlerPrecompiled.Config do
       load_data: opts[:load_data] || 0,
       base_cache_dir: opts[:base_cache_dir],
       targets: targets,
-      format: opts[:format]
+      format: opts[:format],
+      nif_prefix: opts[:nif_prefix]
     }
   end
 
