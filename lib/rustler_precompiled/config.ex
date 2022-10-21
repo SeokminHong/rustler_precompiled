@@ -13,7 +13,8 @@ defmodule RustlerPrecompiled.Config do
     :base_cache_dir,
     :load_data,
     :force_build?,
-    :targets
+    :targets,
+    :format
   ]
 
   @default_targets ~w(
@@ -45,7 +46,8 @@ defmodule RustlerPrecompiled.Config do
       # Default to `0` like `Rustler`.
       load_data: opts[:load_data] || 0,
       base_cache_dir: opts[:base_cache_dir],
-      targets: targets
+      targets: targets,
+      format: opts[:format]
     }
   end
 

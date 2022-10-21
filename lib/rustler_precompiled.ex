@@ -173,12 +173,18 @@ defmodule RustlerPrecompiled do
       |> read_map_from_file()
 
     case metadata do
-      %{targets: targets, base_url: base_url, basename: basename, version: version} ->
+      %{
+        targets: targets,
+        base_url: base_url,
+        basename: basename,
+        version: version,
+        format: fmt
+      } ->
         for target_triple <- targets, nif_version <- @available_nif_versions do
           target = "nif-#{nif_version}-#{target_triple}"
 
           # We need to build again the name because each arch is different.
-          lib_name = "#{lib_prefix(target)}#{basename}-v#{version}-#{target}"
+          lib_name = format(fmt, target, basename, version)
 
           tar_gz_file_url(base_url, lib_name_with_ext(target, lib_name))
         end
@@ -415,7 +421,7 @@ defmodule RustlerPrecompiled do
   def build_metadata(%Config{} = config) do
     with {:ok, target} <- target(target_config(), config.targets) do
       basename = config.crate || config.otp_app
-      lib_name = "#{lib_prefix(target)}#{basename}-v#{config.version}-#{target}"
+      lib_name = format(config.format, target, basename, config.version)
 
       file_name = lib_name_with_ext(target, lib_name)
 
@@ -436,7 +442,8 @@ defmodule RustlerPrecompiled do
          file_name: file_name,
          target: target,
          targets: config.targets,
-         version: config.version
+         version: config.version,
+         format: config.format
        }}
     end
   end
@@ -580,6 +587,14 @@ defmodule RustlerPrecompiled do
     else
       cache_dir(sub_dir)
     end
+  end
+
+  defp format(fmt, target, basename, version) do
+    (fmt || "{prefix}{basename}-v{version}-{target}")
+    |> String.replace("{prefix}", lib_prefix(target))
+    |> String.replace("{basename}", basename)
+    |> String.replace("{version}", version)
+    |> String.replace("{target}", target)
   end
 
   defp lib_prefix(target) do
